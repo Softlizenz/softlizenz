@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_elements_single_slides",
+  "info": {
+    "displayName": "Single Slide"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "cta": {
+      "type": "component",
+      "component": "elements.link",
+      "repeatable": false
+    },
+    "order": {
+      "type": "integer"
+    }
+  },
+  "config": {}
+}

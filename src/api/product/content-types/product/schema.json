@@ -1,0 +1,91 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "required": true
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category",
+      "inversedBy": "products"
+    },
+    "description": {
+      "type": "richtext",
+      "required": true
+    },
+    "shortDescription": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "licenseType": {
+      "type": "enumeration",
+      "enum": [
+        "Subscription",
+        "Lifetime"
+      ]
+    },
+    "sku": {
+      "type": "uid",
+      "required": true
+    },
+    "deliveryMethod": {
+      "type": "enumeration",
+      "enum": [
+        "Email",
+        "Download"
+      ]
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "currency": {
+      "type": "enumeration",
+      "enum": [
+        "EUR",
+        "USD"
+      ]
+    },
+    "brand": {
+      "type": "string"
+    },
+    "metaTitle": {
+      "type": "string"
+    },
+    "metaDescription": {
+      "type": "text"
+    },
+    "keyWords": {
+      "type": "text"
+    },
+    "canonicalURL": {
+      "type": "string"
+    },
+    "isPublished": {
+      "type": "boolean"
+    }
+  }
+}
