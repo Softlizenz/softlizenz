@@ -86,6 +86,12 @@
     },
     "isPublished": {
       "type": "boolean"
+    },
+    "reviews": {
+      "type": "integer"
+    },
+    "discountedPrice": {
+      "type": "decimal"
     }
   }
 }

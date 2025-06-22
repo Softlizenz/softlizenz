@@ -458,6 +458,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     currency: Schema.Attribute.Enumeration<['EUR', 'USD']>;
     deliveryMethod: Schema.Attribute.Enumeration<['Email', 'Download']>;
     description: Schema.Attribute.RichText & Schema.Attribute.Required;
+    discountedPrice: Schema.Attribute.Decimal;
     image: Schema.Attribute.Media<'images' | 'files'> &
       Schema.Attribute.Required;
     isPublished: Schema.Attribute.Boolean;
@@ -473,6 +474,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     metaTitle: Schema.Attribute.String;
     price: Schema.Attribute.Decimal;
     publishedAt: Schema.Attribute.DateTime;
+    reviews: Schema.Attribute.Integer;
     shortDescription: Schema.Attribute.String;
     sku: Schema.Attribute.UID & Schema.Attribute.Required;
     slug: Schema.Attribute.UID & Schema.Attribute.Required;
