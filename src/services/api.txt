@@ -1,0 +1,1678 @@
+openapi: 3.0.0
+servers:
+  - url: https://panel.keysender.co.uk/api/v1.0
+    description: Default server
+info:
+  description: |
+    # Introduction
+    An Application Programming Interface (or API) is a way for two web pages and/or pieces of software to communicate with each other.
+    An API works as a middleman, taking the request from one piece of software, and then replying with the appropriate response from the other.
+
+    # Authentication
+    The Keysender offers OAuth2 authentication.
+    OAuth2 is an open protocol to allow secure authorization in a simple and standard method from web, mobile and desktop applications.
+
+    [The OAuth 2.0 Authorization Framework: Bearer Token Usage](https://tools.ietf.org/html/rfc6750)
+
+    This specification describes how to use bearer tokens in HTTP requests to access OAuth 2.0 protected resources.
+    Any party in possession of a bearer token (a "bearer") can use it to get access to the associated resources (without demonstrating possession of a cryptographic key).
+    To prevent misuse, bearer tokens need to be protected from disclosure in storage and in transport.
+
+    <security-definitions />
+  version: 1.0.0 BETA
+  title: Keysender API
+  x-logo:
+    url: '/assets/img/keysender.png'
+    altText: keysender logo
+tags:
+  - name: User
+    description: Operations about user
+  - name: Database
+    description: Operations about database
+  - name: Code
+    description: Operations about codes
+  - name: Transaction
+    description: Operations about transactions
+  - name: Customer
+    description: Operations about customer
+  - name: Catalog
+    description: Operations about catalog
+x-tagGroups:
+  - name: User Management
+    tags:
+      - User
+  - name: Database and Codes
+    tags:
+      - Database
+      - Code
+  - name: Transactions
+    tags:
+      - Transaction
+  - name: Customer
+    tags:
+      - Customer
+  - name: Catalog
+    tags:
+      - Catalog
+paths:
+  /login:
+    post:
+      tags:
+        - User
+      summary: Login
+      parameters:
+        - name: email
+          in: query
+          description: Your email as login
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: password
+          in: query
+          description: The password
+          required: true
+          schema:
+            type: string
+            format: password
+      responses:
+        '401':
+          description: incorrect credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"The password field is required.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            POST {{host}}/login?email=<EMAIL>&password=<PASSWORD>
+            Accept: application/json
+            Content-Type: application/json
+            Cache-Control: no-cache
+        - lang: Vim script
+          label: Curl
+          source: |
+            curl \
+              -X POST "https://keysender.co.uk/api/login?email=<EMAIL>&password=<PASSWORD>"
+  /logout:
+    get:
+      tags:
+        - User
+      summary: Logs out current logged in user session
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        200:
+          description: successful operation
+          content:
+            application/json:
+              example:
+                {"message": "Successfully logged out"}
+
+  /database:
+    get:
+      tags:
+        - Database
+      summary: Get database
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+        - name: id
+          in: query
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect id.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            GET {{host}}/api/v1.0/database?id=<ID>
+            Accept: application/json
+            Authorization: Bearer {{access_token}}
+    post:
+      tags:
+        - Database
+      summary: Create database
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: Name of the database
+                  type: string
+                  required: true
+                type:
+                  description: Loop (0) or One use (1) type
+                  type: integer
+                  required: true
+            example:
+              {"name":"TEST database API", "type":0}
+        description: ''
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"The selected type is invalid.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+              POST {{host}}/api/v1.0/database
+              Accept: application/json
+              Authorization: Bearer {{access_token}}
+
+              {"name":"TEST database API", "type":0}
+        - lang: Vim script
+          label: Curl
+          source: |
+    put:
+      tags:
+        - Database
+      summary: Update database
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: Database id
+                  type: integer
+                  format: int64
+                  required: true
+                name:
+                  description: Name of the database
+                  type: string
+                  required: true
+            example:
+              {"name":"TEST database API", "type":0}
+        description: ''
+        required: true
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"The selected type is invalid.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Database'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            PUT {{host}}/api/v1.0/database
+            Accept: application/json
+            Authorization: Bearer {{access_token}}
+
+            {"id":{{database_id}}, "name":"TEST database API renamed"}
+        - lang: Vim script
+          label: Curl
+          source: |
+
+    delete:
+      tags:
+        - Database
+      summary: Delete database
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: Database id
+                  type: integer
+                  format: int64
+                  required: true
+            example:
+              {"id":1002}
+
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect id.","code":1001}
+        200:
+          description: successful operation
+          content:
+            application/json:
+              example:
+                {"message": "The database has been deleted"}
+  /databases:
+    get:
+      tags:
+        - Database
+      summary: Get databases
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 0
+        - name: pagesize
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 20
+        - name: filter
+          in: query
+          required: false
+          schema:
+            type: string
+          example: [{"name":"TEST database API"}]
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Database'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            GET {{host}}/api/v1.0/databases?page=0&pagesize=20&filter=[{"name":"TEST database API"}]
+            Accept: application/json
+            Cache-Control: no-cache
+            Authorization: Bearer {{access_token}}
+        - lang: Vim script
+          label: Curl
+          source: |
+            curl -i \
+              -H "Authorization: Bearer <ACCESS TOKEN>" \
+              -X GET "https://keysender.co.uk/api/v1.0/databases?page=0&pagesize=20"
+
+  /codes:
+    get:
+      tags:
+        - Code
+      summary: Get codes
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+        - name: database_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 0
+        - name: pagesize
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 20
+        - name: filter
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 'Available filters: type, value, status. Statuses: 0 - code is available, 1 - code has been used. Code types: 1 - text code, 2 - file code'
+          example: '[{"value":"food"},{"type":0}]'
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect id.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Code'
+  /code:
+    post:
+      tags:
+        - Code
+      summary: Upload text codes or file code (binary data)
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+        - name: database_id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Required for binary data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                properties:
+                  value:
+                    type: string
+            example:
+              [{"value":"code1"},{"value":"code2"}]
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+        description: ''
+        required: true
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect id.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Code'
+      x-code-samples:
+        - lang: ActionScript
+          label: General text codes
+          source: |
+              POST {{host}}/api/v1.0/code?database_id=DATABASE_ID
+              Accept: application/json
+              Content-Type: application/json
+              Authorization: Bearer {{access_token}}
+
+              [{"value":"code1"},{"value":"code2"}]
+        - lang: ActionScript
+          label: General file code
+          source: |
+              POST {{host}}/api/v1.0/code?database_id=<DATABASE_ID>&name=<FILE_NAME>
+              Accept: application/octet-stream
+              Content-Type: application/octet-stream
+              Authorization: Bearer {{access_token}}
+
+              BINARY RAW DATA
+        - lang: Vim script
+          label: Curl
+          source: |
+
+    put:
+      tags:
+        - Code
+      summary: Update code
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: Code id
+                  type: integer
+                  format: int64
+                  required: true
+                status:
+                  type: integer
+                  description: 0 - Mark as available<br/>
+                    1 - Mark as used
+                sendfirst:
+                  type: integer
+                  description: 0 - Unmark as send first<br/>
+                    1 - Mark as send first
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect id.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Code'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            PUT {{host}}/api/v1.0/code
+            Accept: application/json
+            Authorization: Bearer {{access_token}}
+
+            {"id":{{code_id}}, "status":1, "sendfirst":0}
+    delete:
+      tags:
+        - Code
+      summary: Delete code
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: Code id
+                  type: integer
+                  format: int64
+                  required: true
+            example:
+              {"id":402302}
+
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect id.","code":1001}
+        200:
+          description: successful operation
+          content:
+            application/json:
+              example:
+                {"message": "The code has been deleted"}
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            DELETE {{host}}/api/v1.0/code
+            Accept: application/json
+            Authorization: Bearer {{access_token}}
+
+            {"id":{{code_id}}}
+        - lang: Vim script
+          label: Curl
+          source: |
+
+
+
+  /transaction/add:
+    post:
+      tags:
+        - Transaction
+      summary: Add new transaction
+      description: You can add new transaction similar to another transaction (like source_transaction_id)
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_transaction_id:
+                  type: integer
+                  format: int64
+                payer:
+                  type: string
+                  format: email
+                quantity:
+                  type: integer
+                  minimum: 1
+                database_id:
+                  type: integer
+                  format: int64
+            example:
+              {"source_transaction_id":226, "payer":"jarek.niewrzal@gmail.com", "quantity":1, "database_id":7}
+        description: ''
+
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect source_transaction_id.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+
+  /transaction/addcustom:
+    post:
+      tags:
+        - Transaction
+      summary: Add new independent transaction
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payer:
+                  type: string
+                  format: email
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: How many codes will be send.
+                database_id:
+                  type: integer
+                  format: int64
+                  description: The database ID from which codes will be taken.
+                  example: 7
+                amount:
+                  type: number
+                  format: float
+                  description: Amount of transaction.
+                  example: 0.99
+                currency:
+                  type: string
+                  description: Currency of transaction.
+                  example: "GBP"
+                name:
+                  type: string
+                  description: Name of goods.
+                  example: "goods"
+                template_id:
+                  type: integer
+                  format: int64
+                  description: Template ID.
+                msgsubject:
+                  type: string
+                  description: If msgsubject exists the field from template will be overridden.
+                  example: "Subject of message"
+                msgtext:
+                  type: string
+                  description: If msgtext exists the field from template will be overridden.
+                  example: "Your message text"
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                {"message":"Unauthorized"}
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                {"ack":"Failure","message":"Incorrect source_transaction_id.","code":1001}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+
+  /customer:
+    get:
+      tags:
+        - Customer
+      summary: Get customer
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+        - name: id
+          in: query
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                { "message": "Unauthorized" }
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                { "ack": "Failure","message": "Incorrect id.","code": 2001 }
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            GET {{host}}/api/v1.0/customer?id=<ID>
+            Accept: application/json
+            Authorization: Bearer {{access_token}}
+    post:
+      tags:
+        - Customer
+      summary: Create customer
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  description: Email
+                  type: string
+                  required: true
+                firstName:
+                  description: First Name
+                  type: string
+                  required: true
+                lastName:
+                  description: Last Name
+                  type: string
+                  required: false
+                phone:
+                  description: Phone
+                  type: string
+                  required: false
+                notes:
+                  description: Notes
+                  type: string
+                  required: false
+                marketingFlag:
+                  description: Marketing
+                  type: boolean
+                  required: false
+                  default: false
+            example:
+              { "email": "email@email.com", "firstName": "Test", "lastName": "Test", "notes": "Notes" }
+        description: ''
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                { "message": "Unauthorized" }
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                { "ack": "Failure","message": "The selected type is invalid.","code": 2001 }
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            POST {{host}}/api/v1.0/customer
+            Accept: application/json
+            Authorization: Bearer {{access_token}}
+
+            { "email": "email@email.com", "firstName": "Test", "lastName": "Test", "notes": "Notes" }
+        - lang: Vim script
+          label: Curl
+          source: |
+    put:
+      tags:
+        - Customer
+      summary: Update customer
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: Customer id
+                  type: integer
+                  format: int64
+                  required: true
+                firstName:
+                  description: First Name
+                  type: string
+                  required: true
+                lastName:
+                  description: Last Name
+                  type: string
+                  required: false
+                phone:
+                  description: Phone
+                  type: string
+                  required: false
+                notes:
+                  description: Notes
+                  type: string
+                  required: false
+                marketingFlag:
+                  description: Marketing
+                  type: boolean
+                  required: false
+                  default: false
+            example:
+              { "id": 1, "firstName": "Test", "lastName": "Test", "notes": "Notes" }
+        description: ''
+        required: true
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                { "message": "Unauthorized" }
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                { "ack": "Failure","message": "The selected type is invalid.","code": 2001 }
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+      x-code-samples:
+        - lang: ActionScript
+          label: General
+          source: |
+            PUT {{host}}/api/v1.0/customer
+            Accept: application/json
+            Authorization: Bearer {{access_token}}
+
+            { "id": {{customer_id}}, "firstName": "Test", "lastName": "Test", "notes": "Notes" }
+        - lang: Vim script
+          label: Curl
+          source: |
+
+    delete:
+      tags:
+        - Customer
+      summary: Delete customer
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: Customer id
+                  type: integer
+                  format: int64
+                  required: true
+            example:
+              { "id": 1 }
+
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                { "message": "Unauthorized" }
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                { "ack": "Failure","message": "Incorrect id.","code": 2001 }
+        200:
+          description: successful operation
+          content:
+            application/json:
+              example:
+                { "message": "The customer has been deleted" }
+    /customers:
+      get:
+        tags:
+          - Customer
+        summary: Get customers
+        description: ''
+        parameters:
+          - name: Authorization
+            in: header
+            required: true
+            schema:
+              type: string
+            example: "Bearer <TOKEN>"
+          - name: page
+            in: query
+            required: false
+            schema:
+              type: integer
+            example: 0
+          - name: pagesize
+            in: query
+            required: false
+            schema:
+              type: integer
+            example: 20
+        responses:
+          '401':
+            description: Unauthorized
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorCredentialsResponse'
+                example:
+                  { "message": "Unauthorized" }
+          '200':
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Customer'
+        x-code-samples:
+          - lang: ActionScript
+            label: General
+            source: |
+              GET {{host}}/api/v1.0/customers?page=0&pagesize=20
+              Accept: application/json
+              Cache-Control: no-cache
+              Authorization: Bearer {{access_token}}
+          - lang: Vim script
+            label: Curl
+            source: |
+              curl -i \
+                -H "Authorization: Bearer <ACCESS TOKEN>" \
+                -X GET "https://keysender.co.uk/api/v1.0/customers?page=0&pagesize=20"
+
+
+  /catalog/products:
+    get:
+      tags:
+        - Catalog
+      summary: Get products
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+        - name: sku
+          in: query
+          required: false
+          schema:
+            type: string
+          example: test
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          example: test
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          example: category1,category2
+        - name: price_min
+          in: query
+          required: false
+          schema:
+            type: number
+          example: 12.12
+        - name: price_max
+          in: query
+          required: false
+          schema:
+            type: number
+          example: 12.12
+        - name: qty_min
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 2
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: number
+          example: price
+        - name: sort_order
+          in: query
+          required: false
+          schema:
+            type: number
+          example: desc
+        - name: include_discounted
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: region
+          in: query
+          required: false
+          schema:
+            type: string
+          example: region1,region2
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+          example: lang1,lang2
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: string
+          example: 2025-01-01
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 1
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 20
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                { "message": "Unauthorized" }
+        '422':
+          description: Incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCatalogResponse'
+              example:
+                { "errors": {"include_metadata": [ "Include metadata must be 0 or 1."] }}
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProducts'
+
+  /catalog/products/{sku}:
+    get:
+      tags:
+        - Catalog
+      summary: Get product by SKU
+      description: ''
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          example: "Bearer <TOKEN>"
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+          example: test
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCredentialsResponse'
+              example:
+                { "message": "Unauthorized" }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                { "message": "Product not found" }
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogProduct'
+
+components:
+  schemas:
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJ0eCsiOiJKV1QiLCJhbAciOiJSUzI1NiIsImp0aSI6IjE1MmNhYWFhYTQ1MmEzZDQ5NGI5NzkzY2IzOGM1ODRjZTQxNTU5ZGQzOGU0OThmYjdiNThhNWYwNzEwODc4MjI4ZGViZmQxZmJmYWVjMTBiIn0.eyJhdWQiOiIxIiwianRpIjoiMTUyY2FhYWFhNDUyYTNkNDk0Yjk3OTNjYjM4YzU4NGNlNDE1NTlkZDM4ZTQ5OGZiN2I1OGE1ZjA3MTA4NzgyMjhkZWJmZDFmYmZhZWMxMGIiLCJpYXQiOjE1NTM1ODc5OTcsIm5iZiI6MTU1MzU4Nzk5NywiZXhwIjoxNTg1MjEwMzk3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uz-fXlyoQbxt5AlRXy0PRl9aDJ9COMMcZVX7qQifwan9tmrVugbkVcYnjq_9Y-cHIhpE6V28v2ysHY-D7rwL9v5PjiBrE8fzVaDZJM7Wdkx9wGJeNtPdJl-PxBHn0cQobHyaznH-17tDG4wetFW843atbBw9tnavchbFkcGbFus3qhuLfpLVjjDgSxLB77bzMYhMVOwDPtrNIFyum6OgeGfihYEIOGYWOm9ecdPdpiJ9Zu4e7aQqL4X6OjbAkFtLB2AJx0lKd3IFG873JEcAMkN5WkzFuQdNZxKqBfIkOQV50dWMVDdXBols2ZBmtV-zUlTyJDFJK5-LlFpTrVfai-Dxk0IugyQLpwmpWdQ1pqkrPtOl4xK4yVBoFf_lqRK-ZgXRRLM8yVBPKpg0XRoYWfKS78phjL_TLVCfZU_xlOtCwmlcsdeWIzib87WOI-8x79og7dpVjDQA1u7PGtDx1m7qHGNVcpOGkcg9yTuLa6VrahKq1nkr-N0pSbAB2lzvWy_C_FzPIu4hGzDK_kk7vKP8cVJxmIE8fGkX8XHdFo0wysLDSZ9ar0D9QjxjJ0Bexr0xuT3mQty_IqMKgTafeEkpS4rQgIArz6F6RwgkDFHhk0KMfsuuPtMK2n7ikVcQaj7gm6KdvM_k-GvHWnfLqGHJGZ0EDErzs98ED8GmW1s
+        token_type:
+          type: string
+          example:
+            Bearer
+        expires_at:
+          type: string
+          format: 'date-time'
+    ErrorCredentialsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        ack:
+          type: string
+          example: 'Failure'
+        message:
+          type: string
+        code:
+          type: integer
+    ErrorCatalogResponse:
+      type: object
+      properties:
+        errors:
+          type: object
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    Id:
+      type: integer
+      format: int64
+      readOnly: true
+    Database:
+      type: object
+      properties:
+        id:
+          description: Database ID
+          allOf:
+            - $ref: '#/components/schemas/Id'
+          example:
+            100212
+        name:
+          description: Database name
+          type: string
+          example:
+            "EA ACCESS 1mo"
+        type:
+          type: integer
+          description: >
+            Database type.<br/>
+            0 means One use type<br/>
+            1 means unlimited count fo codes (Loop type)
+          example:
+            0
+        available:
+          type: integer
+          description: How many codes are available in database
+          example:
+            102
+        to_send:
+          type: integer
+          description: How many codes are missing
+          example: 0
+    CatalogProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID
+          example: "123"
+        sku:
+          type: string
+          description: SKU
+          example: "test-sku_1"
+        name:
+          type: string
+          description: Product Name
+          example: "Test Name"
+        type:
+          type: string
+          description: TYPE
+          example: "game"
+        qty:
+          type: integer
+          description: Stock available
+          example: 123123
+        regular_price:
+          type: number
+          description: Regular Price
+          example: 12.12
+        purchase_price:
+          type: number
+          description: Regular Price
+          example: 12.12
+        currency:
+          type: string
+          description: Currency
+          example: "USD"
+        updated_at:
+          type: string
+          description: Datetime in format YYYY-mm-dd h:i:s
+          example: "2025-03-10 14:48:24"
+        release_date:
+          type: string
+          description: Datetime in format YYYY-mm-dd h:i:s, for now N/A
+          example: "N/A"
+        developer:
+          type: string
+          description: Developer
+          example: "N/A"
+        publisher:
+          type: string
+          description: Publisher
+          example: "N/A"
+        description:
+          type: string
+          description: Description
+          example: "N/A"
+
+    GetProducts:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of products
+          example: 141
+        page:
+          type: integer
+          description: Current page
+          example: 1
+        items_per_page:
+          type: integer
+          description: Items per page
+          example: 20
+        docs:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogProduct'
+    Customer:
+      type: object
+      properties:
+        id:
+          description: Customer ID
+          allOf:
+            - $ref: '#/components/schemas/Id'
+          example:
+            100212
+        email:
+          description: Email
+          type: string
+          example:
+            "email@email.com"
+        firstName:
+          type: string
+          description: Name
+          example:
+            "Test"
+        lastName:
+          type: string
+          description: Last Name
+          example:
+            "API"
+        language:
+          type: string
+          description: Language code
+          example: "en"
+        phone:
+          type: string
+          description: Phone
+          example: "+1800800800"
+        organizationId:
+          type: integer
+          description: Customer's organization
+          example: 1
+        marketingFlag:
+          type: boolean
+          description: Marketing Flag
+          example: false
+        listType:
+          type: string
+          description: List Type
+          example: "Allowlisted"
+        notes:
+          type: string
+          description: Notes
+          example: "Test API notes"
+
+    Code:
+      type: object
+      properties:
+        id:
+          description: Code ID
+          allOf:
+            - $ref: '#/components/schemas/Id'
+          example:
+            4032190
+        type:
+          type: integer
+          enum:
+            - 1
+            - 2
+          description: 1 - text code, 2 - file code
+          example:
+            2
+        value:
+          type: string
+          description: ''
+          example:
+            'food.png'
+        status:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: 0 - available, 1 - used
+        keyusage:
+          type: integer
+          minimum: 0
+        sendfirst:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: ''
+        filename:
+          type: string
+          example:
+              '2019/01/14/1749f9beff9aef841d9a4a997ac41376.png'
+    Transaction:
+      type: object
+      properties:
+        id:
+          description: Transaction ID
+          allOf:
+            - $ref: '#/components/schemas/Id'
+          example: 4032190
+        platform:
+          type: integer
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+          description: 0 - eBay<br/>1 - Paypal button<br/>2 - Allegro<br/>3 - Keysender
+        status:
+          type: integer
+          description: 1 - Paid (sending codes)<br/>
+            10 - Sent codes<br/>
+            101 - Mark as done<br/>
+            102 - Accept buyer<br/>
+            103 - Mark as refund<br/>
+            104 - Other<br/>
+        status_at:
+          type: string
+          format: 'date-time'
+        name:
+          type: string
+          description: The goods name
+        quantity:
+          type: integer
+          description: How many codes to send
+        quantity_sent:
+          type: integer
+          description: How many codes has been sent
+        amount:
+          type: integer
+          description: Transaction amount
+        currency:
+          type: string
+          description: Transaction currency
+        keysender_buyer_email:
+          type: string
+          format: email
+          description: Buyer email if platform is not eBay.
+        ebay_auction_id:
+          type: integer
+          format: int64
+          description: Auction ID
+        ebay_itemid:
+          type: integer
+          format: int64
+          description: eBay good item ID
+        ebay_transactionid:
+          type: integer
+          format: int64
+          description: eBay transaction ID
+        ebay_orderlineitemid:
+          type: string
+          description: eBay order line
+        ebay_buyer_eiastoken:
+          type: string
+          description: eBay buyer EIASToken
+        ebay_buyer_email:
+          type: string
+          format: email
+          description: eBay buyer email
+        ebay_buyer_feedbackscore:
+          type: integer
+          description: eBay feedback score
+        email_subject:
+          type: string
+          description: Subject of the sent email
+        email_text:
+          type: string
+          description: Text of the sent email
+        email_replyto:
+          type: string
+        keysender_code_id:
+          type: integer
+          format: int64
+          description: Database ID which has been used to send codes
+
+  securitySchemes:
+    api_key:
+      description: Bearer authorization
+      type: OAuth2
+      name: bearer
+      in: header

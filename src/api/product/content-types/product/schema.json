@@ -98,6 +98,9 @@
       "relation": "manyToMany",
       "target": "api::order.order",
       "mappedBy": "products"
+    },
+    "isRecommended": {
+      "type": "boolean"
     }
   }
 }

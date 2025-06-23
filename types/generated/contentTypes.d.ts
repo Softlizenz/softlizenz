@@ -533,6 +533,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     image: Schema.Attribute.Media<'images' | 'files'> &
       Schema.Attribute.Required;
     isPublished: Schema.Attribute.Boolean;
+    isRecommended: Schema.Attribute.Boolean;
     keyWords: Schema.Attribute.Text;
     licenseType: Schema.Attribute.Enumeration<['Subscription', 'Lifetime']>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
