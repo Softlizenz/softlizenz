@@ -34,6 +34,16 @@
         "images",
         "files"
       ]
+    },
+    "section": {
+      "type": "enumeration",
+      "required": false,
+      "enum": [
+        "windows",
+        "office",
+        "adobe",
+        "server"
+      ]
     }
   }
 }
