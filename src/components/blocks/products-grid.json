@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_blocks_products_grids",
+  "info": {
+    "displayName": "Products Grid"
+  },
+  "options": {},
+  "attributes": {
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "windows",
+        "office",
+        "adobe",
+        "server"
+      ]
+    },
+    "allProducts": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "config": {}
+}

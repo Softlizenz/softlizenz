@@ -29,6 +29,20 @@ export interface BlocksInfoBlock extends Struct.ComponentSchema {
   };
 }
 
+export interface BlocksProductsGrid extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_products_grids';
+  info: {
+    displayName: 'Products Grid';
+  };
+  attributes: {
+    allProducts: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    category: Schema.Attribute.Enumeration<
+      ['windows', 'office', 'adobe', 'server']
+    >;
+    products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
+  };
+}
+
 export interface BlocksSlider extends Struct.ComponentSchema {
   collectionName: 'components_blocks_sliders';
   info: {
@@ -36,6 +50,16 @@ export interface BlocksSlider extends Struct.ComponentSchema {
   };
   attributes: {
     slide: Schema.Attribute.Component<'elements.single-slide', true>;
+  };
+}
+
+export interface BlocksTextBlock extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_text_blocks';
+  info: {
+    displayName: 'Text Block';
+  };
+  attributes: {
+    text: Schema.Attribute.Blocks;
   };
 }
 
@@ -144,7 +168,9 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'blocks.hero-section': BlocksHeroSection;
       'blocks.info-block': BlocksInfoBlock;
+      'blocks.products-grid': BlocksProductsGrid;
       'blocks.slider': BlocksSlider;
+      'blocks.text-block': BlocksTextBlock;
       'elements.link': ElementsLink;
       'elements.logo': ElementsLogo;
       'elements.single-slide': ElementsSingleSlide;
