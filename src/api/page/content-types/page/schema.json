@@ -55,15 +55,6 @@
       },
       "required": true
     },
-    "isPublished": {
-      "type": "boolean",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "default": false
-    },
     "parentPage": {
       "type": "relation",
       "relation": "oneToOne",
